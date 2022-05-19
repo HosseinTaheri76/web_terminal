@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .terminal{
+            width: 100%;
+            height: 600px;
+            background-color: black;
+            color:white;
+            overflow-y: scroll;
+            line-height: 25px;
+            padding: 0 5px;
+        }
+        body{
+            padding: 1%
+        }
+        #term_form{
+            margin-top: 1%;
+        }
+        #cmd{
+            width: 100%;
+            height: 30px;
+            font-size: 16px;
+            background-color:black;
+            color:white;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+<body>
+<h1 style="text-align: center">Web Terminal</h1>
+<div id="term_out" class="terminal"></div>
+<form id="term_form">
+    <label for="cmd">Your Command: </label><input type="text" id="cmd">
+</form>
+<script>
+    const socket = new WebSocket(`ws://${window.location.host}/ws/terminal/`);
+    const terminal = document.getElementById('term_out');
+    document.getElementById('term_form').addEventListener('submit', e => {
+        e.preventDefault();
+        let cmd = document.getElementById('cmd').value;
+        if (cmd === 'cls' || cmd === 'clear'){
+            terminal.innerText = '';
+            socket.send(JSON.stringify({cmd: ''}))
+        }
+        else{
+        socket.send(JSON.stringify({cmd}));
+        }
+        document.getElementById('cmd').value = '';
+    })
+    socket.onmessage = e => {
+        const output = JSON.parse(e.data).output;
+        terminal.innerText += output
+    }
+</script>
+</body>
+</html>
